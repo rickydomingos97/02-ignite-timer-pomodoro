@@ -8,10 +8,6 @@ export const HomeContainer = styled.main`
   align-items: center;
   justify-content: center;
 
-  height: calc(100vh - 10rem);
-
-  minheight: calc(100vh - 10rem);
-
   form {
     display: flex;
     flex-direction: column;
@@ -106,8 +102,8 @@ export const StartCountdownButton = styled.button`
   background: ${(props) => props.theme['green-500']};
   color: ${(props) => props.theme['gray-100']};
 
-  &:disable {
-    opacity: 0.7;
+  &:disabled {
+    opacity: 0.5;
     cursor: not-allowed;
   }
 
