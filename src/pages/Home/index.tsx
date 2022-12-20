@@ -2,7 +2,7 @@ import { Play } from 'phosphor-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as zod from 'zod'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   CountdownContainer,
   FormContainer,
@@ -12,7 +12,7 @@ import {
   StartCountdownButton,
   TaskInput,
 } from './styles'
-
+import { differenceInSeconds } from 'date-fns'
 const newCycleFormValidationSchema = zod.object({
   task: zod.string().min(1, 'Please set a task'),
   minutesAmount: zod.number().min(5).max(60),
@@ -28,16 +28,33 @@ interface Cycle {
   id: string
   task: string
   minutesAmount: number
+  startDate: Date
 }
 // passando um objeto de configuracoes no useForm
 export function Home() {
   //
   const [cycles, setCycles] = useState<Cycle[]>([])
+  const [activeCycleId, setActiveCycleId] = useState<string | null>(null)
+  // armazena os segundos que ja passaram desde a criacao do cliclo
+  const [amountSecondsPassed, setAmountSecondsPassed] = useState(0)
 
   const { register, handleSubmit, watch, reset } = useForm<NewCycleFormData>({
     resolver: zodResolver(newCycleFormValidationSchema),
     defaultValues: {},
   })
+
+  // nos mostra qual o id do ciclo ativo
+  const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId)
+
+  useEffect(() => {
+    if (activeCycle) {
+      setInterval(() => {
+        setAmountSecondsPassed(
+          differenceInSeconds(new Date(), activeCycle.startDate),
+        )
+      }, 1000)
+    }
+  }, [activeCycle])
 
   // integrando o o formalario com ts
 
@@ -47,15 +64,33 @@ export function Home() {
       id: String(new Date().getTime()), // id criado com os millisegundos do time do computador em formato de string
       task: data.task,
       minutesAmount: data.minutesAmount,
+      startDate: new Date(),
     }
 
     setCycles((state) => [...state, newCycle])
+    setActiveCycleId(newCycle.id)
 
     reset()
   }
 
+  // mostrando o countdown na tela
+  // se o ciclo estiver ativo, multiplica os minutos por 60
+  const totalSeconds = activeCycle ? activeCycle.minutesAmount * 60 : 0
+  // mostra o tempo que falta pra terminar o tempo
+  const currentSeconds = activeCycle ? totalSeconds - amountSecondsPassed : 0
+  // convertendo pra mostrar em tela,
+  // e lembrar de mostrar o numero convertido pra baixo
+  const minutesAmount = Math.floor(currentSeconds / 60)
+  const secondsAmount = currentSeconds % 60 // quantos segundos sobram de 60 no resto da divisao
+  // isso vai mostrar em tela um 0 no inicio do numero se o numero for menor que 10
+  const minutes = String(minutesAmount).padStart(2, '0')
+  const seconds = String(secondsAmount).padStart(2, '0')
+
+  console.log(activeCycle)
+
   const task = watch('task')
   const isSubmiteDisabled = !task
+
   return (
     <HomeContainer>
       <form onSubmit={handleSubmit(handleCreateNewCycle)} action="">
@@ -90,11 +125,11 @@ export function Home() {
         </FormContainer>
 
         <CountdownContainer>
-          <span>0</span>
-          <span>0</span>
+          <span>{minutes[0]}</span>
+          <span>{minutes[1]}</span>
           <Separator>:</Separator>
-          <span>0</span>
-          <span>0</span>
+          <span>{seconds[0]}</span>
+          <span>{seconds[1]}</span>
         </CountdownContainer>
 
         <StartCountdownButton disabled={isSubmiteDisabled} type="submit" id="">
