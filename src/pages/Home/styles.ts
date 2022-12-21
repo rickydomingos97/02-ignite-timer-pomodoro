@@ -1,3 +1,4 @@
+import { Separator } from './styles'
 import styled from 'styled-components'
 
 export const HomeContainer = styled.main`
@@ -84,11 +85,13 @@ export const Separator = styled.div`
   display: flex;
   justify-content: center;
 `
-export const StartCountdownButton = styled.button`
+export const BaseCountdownButton = styled.button`
   width: 100%;
   border: 0;
   padding: 1rem;
   border-radius: 8px;
+
+  color: ${(props) => props.theme['gray-100']};
 
   display: flex;
   justify-content: center;
@@ -99,18 +102,27 @@ export const StartCountdownButton = styled.button`
 
   cursor: pointer;
 
-  background: ${(props) => props.theme['green-500']};
-  color: ${(props) => props.theme['gray-100']};
-
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
 
   // se nao estiver disabvled entao hover
+`
+
+export const StartCountdownButton = styled(BaseCountdownButton)`
+  background: ${(props) => props.theme['green-500']};
 
   &:not(:disabled):hover {
     background: ${(props) => props.theme['green-700']};
+    transition: 0.5s;
+  }
+`
+
+export const StopCountdownButton = styled(BaseCountdownButton)`
+  background: ${(props) => props.theme['red-500']};
+  &:not(:disabled):hover {
+    background: ${(props) => props.theme['red-700']};
     transition: 0.5s;
   }
 `
