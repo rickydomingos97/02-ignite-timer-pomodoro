@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as zod from 'zod'
 import { useEffect, useState } from 'react'
+import { differenceInSeconds } from 'date-fns'
 import {
   CountdownContainer,
   FormContainer,
@@ -12,7 +13,7 @@ import {
   StartCountdownButton,
   TaskInput,
 } from './styles'
-import { differenceInSeconds } from 'date-fns'
+
 const newCycleFormValidationSchema = zod.object({
   task: zod.string().min(1, 'Please set a task'),
   minutesAmount: zod.number().min(5).max(60),
@@ -32,11 +33,10 @@ interface Cycle {
 }
 // passando um objeto de configuracoes no useForm
 export function Home() {
-  //
   const [cycles, setCycles] = useState<Cycle[]>([])
   const [activeCycleId, setActiveCycleId] = useState<string | null>(null)
   // armazena os segundos que ja passaram desde a criacao do cliclo
-  const [amountSecondsPassed, setAmountSecondsPassed] = useState(0)
+  const [amountSecondsPassed, setAmountSecondsPassed] = useState(0) // calcula os seg passados desde o inicio do cliclo
 
   const { register, handleSubmit, watch, reset } = useForm<NewCycleFormData>({
     resolver: zodResolver(newCycleFormValidationSchema),
@@ -47,12 +47,20 @@ export function Home() {
   const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId)
 
   useEffect(() => {
+    let interval: number
     if (activeCycle) {
-      setInterval(() => {
+      // setInterval(() => {
+      interval = setInterval(() => {
         setAmountSecondsPassed(
           differenceInSeconds(new Date(), activeCycle.startDate),
         )
       }, 1000)
+    }
+
+    // dentro do useEffect podemos ter um retorno que sempre retorna uma funcaoncom arrow function sem parametro
+    // vou deletar os intervalos criados anteriorm,ente aqui nessa funcao
+    return () => {
+      clearInterval(interval)
     }
   }, [activeCycle])
 
@@ -69,6 +77,7 @@ export function Home() {
 
     setCycles((state) => [...state, newCycle])
     setActiveCycleId(newCycle.id)
+    setAmountSecondsPassed(0) // zera os segundos quando uma nova task eh inicializada
 
     reset()
   }
@@ -85,6 +94,13 @@ export function Home() {
   // isso vai mostrar em tela um 0 no inicio do numero se o numero for menor que 10
   const minutes = String(minutesAmount).padStart(2, '0')
   const seconds = String(secondsAmount).padStart(2, '0')
+
+  // useEffect para mostrar o contador na aba da pagina
+  useEffect(() => {
+    if (activeCycle) {
+      document.title = `${minutes}:${seconds} - Ignite Timer`
+    }
+  }, [minutes, seconds, activeCycle])
 
   console.log(activeCycle)
 
