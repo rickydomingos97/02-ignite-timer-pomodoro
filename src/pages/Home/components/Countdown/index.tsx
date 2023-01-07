@@ -1,7 +1,7 @@
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect } from 'react'
 import { CountdownContainer, Separator } from './styles'
 import { differenceInSeconds } from 'date-fns'
-import { CyclesContext } from '../..'
+import { CyclesContext } from '../../../../contexts/CyclesContext'
 
 export function Countdown() {
   const {
@@ -67,12 +67,6 @@ export function Countdown() {
   }, [minutes, seconds, activeCycle])
 
   console.log(activeCycle)
-
-  useEffect(() => {
-    if (!activeCycle) {
-      alert('Finalizado')
-    }
-  }, [minutes, seconds, activeCycle])
 
   return (
     <CountdownContainer>
