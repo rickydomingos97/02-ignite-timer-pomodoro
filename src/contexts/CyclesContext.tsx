@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useState } from 'react'
+import { ReactNode, createContext, useState, useReducer } from 'react'
 
 interface CreateCycleData {
   task: string
@@ -35,6 +35,9 @@ export function CyclesContextProvider({
   children,
 }: CyclesContextProviderProps) {
   const [cycles, setCycles] = useState<Cycle[]>([])
+
+
+  
   const [activeCycleId, setActiveCycleId] = useState<string | null>(null)
   const [amountSecondsPassed, setAmountSecondsPassed] = useState(0) // calcula os seg passados desde o inicio do cliclo
 
@@ -57,7 +60,7 @@ export function CyclesContextProvider({
     )
   }
 
-  // integrando o o formalario com ts
+  // integrando o formulario com ts
   function createNewCycle(data: CreateCycleData) {
     const id = String(new Date().getTime())
 
@@ -79,7 +82,7 @@ export function CyclesContextProvider({
     setCycles((state) =>
       state.map((cycle) => {
         if (cycle.id === activeCycleId) {
-          return { ...cycle, interrupted: new Date() }
+          return { ...cycle, interruptedDate: new Date() }
         } else {
           return cycle
         }

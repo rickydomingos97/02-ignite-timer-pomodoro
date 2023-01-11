@@ -16,6 +16,7 @@ export const HistoryList = styled.div`
   // div para poder gerar scrool lateral no mobile
   //flex: 1;
   //overflow: auto; //para poder gerar scrool lateral no mobile
+
   margin-top: 2rem;
 
   height: 356px;
